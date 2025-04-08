@@ -29,6 +29,7 @@
       font-weight: bold;
       z-index: 1; 
     }
+
   </style>
 </head>
 <body>
@@ -55,47 +56,10 @@
   </div>
 
   <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
-
   <df-messenger
     chat-title="효율관리시스템_챗봇서비스"
     agent-id="6b0f9ab1-3095-4a3a-8e5a-45182953f9d1"
-    language-code="ko"
-    wait-open>
+    language-code="ko">
   </df-messenger>
-
-  <script>
-    const messenger = document.querySelector('df-messenger');
-
-    async function checkStatus() {
-      try {
-        // Cloud Run에 배포된 엔드포인트로 상태 확인
-        const res = await fetch('https://efficiency-chatbot-xxxxx.a.run.app/status');
-        const data = await res.json();
-
-        if (data.ready) {
-          // 메시지 전송
-          messenger.renderCustomText('안녕하세요! 효율관리시스템 챗봇서비스입니다. 무엇을 도와드릴까요?');
-
-          // 입력창 활성화
-          document.querySelector('df-messenger').removeAttribute('disabled');
-        } else {
-          // 모델 준비 중 메시지 전송
-          messenger.renderCustomText('모델을 준비하고 있습니다. 잠시만 기다려주세요...');
-
-          // 입력창 비활성화 유지
-          document.querySelector('df-messenger').setAttribute('disabled', 'true');
-
-          setTimeout(checkStatus, 5000); // 5초 후 재시도
-        }
-      } catch (e) {
-        console.error('상태 확인 실패:', e);
-        setTimeout(checkStatus, 5000);
-      }
-    }
-
-    window.addEventListener('dfMessengerLoaded', () => {
-      checkStatus();
-    });
-  </script>
 </body>
 </html>
