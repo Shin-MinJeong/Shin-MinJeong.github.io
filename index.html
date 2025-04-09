@@ -61,5 +61,51 @@
     agent-id="6b0f9ab1-3095-4a3a-8e5a-45182953f9d1"
     language-code="ko">
   </df-messenger>
+
+  <script>
+  window.addEventListener('dfMessengerLoaded', function () {
+    const dfMessenger = document.querySelector("df-messenger");
+    const iframe = dfMessenger.shadowRoot.querySelector("iframe");
+
+    iframe.addEventListener("load", () => {
+      const messengerWindow = iframe.contentWindow;
+
+      // 입력창 비활성화
+      const disableInput = () => {
+        const input = iframe.contentDocument.querySelector("input");
+        if (input) input.disabled = true;
+      };
+
+      // 입력창 활성화
+      const enableInput = () => {
+        const input = iframe.contentDocument.querySelector("input");
+        if (input) input.disabled = false;
+      };
+
+      // 1. "준비중입니다" 출력
+      messengerWindow.postMessage({
+        event: "df-request-suggestion-click",
+        data: {
+          query: "잠시만 기다려주세요.. 챗봇 준비중입니다."
+        }
+      }, "*");
+
+      // 입력창 비활성화
+      setTimeout(disableInput, 100); // 약간의 딜레이를 줘야 DOM이 완성됨
+
+      // 2. 10초 후 "안녕하세요" 출력 + 입력창 활성화
+      setTimeout(() => {
+        messengerWindow.postMessage({
+          event: "df-request-suggestion-click",
+          data: {
+            query: "안녕하세요! 효율관리시스템 챗봇서비스입니다. 무엇을 도와드릴까요?"
+          }
+        }, "*");
+        enableInput();
+      }, 10000); // 10초 후
+    });
+  });
+  </script>
+  
 </body>
 </html>
