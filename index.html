@@ -63,37 +63,34 @@
   </df-messenger>
 
   <script>
-  window.addEventListener('dfMessengerLoaded', function () {
-    const dfMessenger = document.querySelector("df-messenger");
-    const iframe = dfMessenger.shadowRoot.querySelector("iframe");
+    const waitUntilIframeReady = (callback) => {
+      const interval = setInterval(() => {
+        const dfMessenger = document.querySelector("df-messenger");
+        const iframe = dfMessenger?.shadowRoot?.querySelector("iframe");
+        const input = iframe?.contentDocument?.querySelector("input");
 
-    iframe.addEventListener("load", () => {
+        if (iframe && input) {
+          clearInterval(interval);
+          callback(iframe, input);
+        }
+      }, 200);
+    };
+
+    waitUntilIframeReady((iframe, input) => {
       const messengerWindow = iframe.contentWindow;
 
-      // 입력창 비활성화
-      const disableInput = () => {
-        const input = iframe.contentDocument.querySelector("input");
-        if (input) input.disabled = true;
-      };
-
-      // 입력창 활성화
-      const enableInput = () => {
-        const input = iframe.contentDocument.querySelector("input");
-        if (input) input.disabled = false;
-      };
-
-      // 1. "준비중입니다" 출력
+      // 1. "준비중입니다" 메시지 전송
       messengerWindow.postMessage({
         event: "df-request-suggestion-click",
         data: {
-          query: "잠시만 기다려주세요.. 챗봇 준비중입니다."
+          query: "잠시만 기다려주세요... 챗봇 준비중입니다..."
         }
       }, "*");
 
-      // 입력창 비활성화
-      setTimeout(disableInput, 100); // 약간의 딜레이를 줘야 DOM이 완성됨
+      // 2. 입력창 비활성화
+      input.disabled = true;
 
-      // 2. 10초 후 "안녕하세요" 출력 + 입력창 활성화
+      // 3. 10초 후 "안녕하세요" 메시지 + 입력창 활성화
       setTimeout(() => {
         messengerWindow.postMessage({
           event: "df-request-suggestion-click",
@@ -101,10 +98,9 @@
             query: "안녕하세요! 효율관리시스템 챗봇서비스입니다. 무엇을 도와드릴까요?"
           }
         }, "*");
-        enableInput();
-      }, 10000); // 10초 후
+        input.disabled = false;
+      }, 10000);
     });
-  });
   </script>
   
 </body>
