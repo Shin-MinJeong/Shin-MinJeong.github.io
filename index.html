@@ -30,6 +30,18 @@
       z-index: 1; 
     }
 
+    #loading-message {
+      position: fixed;
+      bottom: 120px;
+      right: 40px;
+      background-color: rgba(255,255,255,0.95);
+      padding: 10px 15px;
+      border-radius: 12px;
+      font-weight: bold;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      z-index: 9999;
+    }
+
   </style>
 </head>
 <body>
@@ -63,8 +75,8 @@
   </df-messenger>
 
   <script>
-    const waitUntilIframeReady = (callback) => {
-      const interval = setInterval(() => {
+        const waitUntilIframeReady = (callback) => {
+        const interval = setInterval(() => {
         const dfMessenger = document.querySelector("df-messenger");
         const iframe = dfMessenger?.shadowRoot?.querySelector("iframe");
         const input = iframe?.contentDocument?.querySelector("input");
@@ -79,7 +91,10 @@
     waitUntilIframeReady((iframe, input) => {
       const messengerWindow = iframe.contentWindow;
 
-      // 1. "준비중입니다" 메시지 전송
+      // 입력창 비활성화
+      input.disabled = true;
+
+      // "잠시만 기다려주세요" 메시지를 대화창에 표시
       messengerWindow.postMessage({
         event: "df-request-suggestion-click",
         data: {
@@ -87,18 +102,22 @@
         }
       }, "*");
 
-      // 2. 입력창 비활성화
-      input.disabled = true;
-
-      // 3. 10초 후 "안녕하세요" 메시지 + 입력창 활성화
+      // 10초 후 안내 메시지 + 입력창 활성화
       setTimeout(() => {
+        // 챗봇 환영 메시지 출력
         messengerWindow.postMessage({
           event: "df-request-suggestion-click",
           data: {
             query: "안녕하세요! 효율관리시스템 챗봇서비스입니다. 무엇을 도와드릴까요?"
           }
         }, "*");
+
+        // 입력창 활성화
         input.disabled = false;
+
+        // 준비중 안내 메시지 제거
+        const loadingMsg = document.getElementById("loading-message");
+        if (loadingMsg) loadingMsg.remove();
       }, 10000);
     });
   </script>
